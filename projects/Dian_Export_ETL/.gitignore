@@ -1,0 +1,22 @@
+# Datos y salidas
+data/
+logs/
+
+# Jupyter
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+dist/
+build/
+
+# Entornos
+.venv/
+venv/
+env/
