@@ -48,6 +48,15 @@ Each project folder typically includes:
 
 ---
 
+##  Projects
+
+### 1. DIAN Export ETL Pipeline (Colombia)
+End-to-end ETL pipeline to download, extract, transform, and consolidate national export data for analytics and BI.
+
+Technologies: Python, pandas, Jupyter  
+Project: `projects/dian-export-etl`
+
+
 ## About Me
 
 - Master’s degree in Data Analytics (Universidad de los Andes)

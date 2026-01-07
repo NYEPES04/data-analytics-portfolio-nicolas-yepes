@@ -32,7 +32,7 @@ Pipeline ETL para **descargar** ZIPs de exportaciones, **extraer**, **convertir*
 
 ## Requisitos
 
-- Python 3.10+ recomendado
+- Python 3.10+
 
 Instalación:
 
