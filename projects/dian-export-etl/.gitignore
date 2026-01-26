@@ -1,12 +1,32 @@
-# Datos y salidas
+# =========================
+# Datos y salidas (data lake)
+# =========================
 data/
 logs/
 
+# 👉 EXCEPCIONES DENTRO DE data/
+!data/catalogs/
+!data/catalogs/**
+!data/catalogs/hs2_capitulos.csv
+
+# (opcional) si en el futuro quieres versionar más catálogos:
+# !data/catalogs/*.csv
+
+# =========================
+# Logs
+# =========================
+logs/
+!logs/.gitkeep
+
+# =========================
 # Jupyter
+# =========================
 .ipynb_checkpoints/
 **/.ipynb_checkpoints/
 
+# =========================
 # Python
+# =========================
 __pycache__/
 *.pyc
 *.pyo
@@ -16,7 +36,9 @@ __pycache__/
 dist/
 build/
 
-# Entornos
+# =========================
+# Entornos virtuales
+# =========================
 .venv/
 venv/
 env/

@@ -8,53 +8,53 @@ def extract_all_zips(
     verbose: bool = True
 ):
     """
-    Extrae todos los ZIP contenidos en zip_dir hacia carpetas dentro de extract_dir.
+    Extracts all ZIP files contained in zip_dir into subfolders inside extract_dir.
 
-    Cada ZIP se descomprime en una carpeta con el MISMO nombre que el ZIP:
-        EJ: 01_Exportaciones_2021_Enero.zip
-        →  extract_dir/01_Exportaciones_2021_Enero/
+    Each ZIP file is extracted into a folder with the SAME name as the ZIP:
+        e.g.: 01_Exportaciones_2021_Enero.zip
+        →     extract_dir/01_Exportaciones_2021_Enero/
 
-    Parámetros
+    Parameters
     ----------
-    zip_dir : carpeta donde están los ZIP descargados
-    extract_dir : carpeta destino para los archivos descomprimidos
-    overwrite : si False, no vuelve a descomprimir si la carpeta ya existe
-    verbose : si True, imprime progreso
+    zip_dir : directory containing the downloaded ZIP files
+    extract_dir : destination directory for extracted files
+    overwrite : if False, extraction is skipped when the target folder already exists
+    verbose : if True, prints progress messages
 
-    Retorna
+    Returns
     -------
-    List[Path] : lista con las carpetas nuevas creadas
+    List[Path] : list of newly created folders
     """
     zip_dir = Path(zip_dir)
     extract_dir = Path(extract_dir)
     extract_dir.mkdir(parents=True, exist_ok=True)
 
-    nuevos = []
+    new_folders = []
 
     for zip_path in zip_dir.glob("*.zip"):
-        folder_name = zip_path.stem  # nombre del ZIP sin .zip
+        folder_name = zip_path.stem  # ZIP file name without .zip
         target_folder = extract_dir / folder_name
 
         if target_folder.exists() and not overwrite:
             if verbose:
-                print(f"⏭️ Ya existe, omito: {target_folder.name}")
+                print(f"Already exists: {target_folder.name}")
             continue
 
         if verbose:
-            print(f"\n Extrayendo: {zip_path.name}")
-            print(f"   → Carpeta destino: {target_folder}")
+            print(f"\n Extracting: {zip_path.name}")
+            print(f"   → Target folder: {target_folder}")
 
-        # Crear carpeta destino
+        # Create destination folder
         target_folder.mkdir(exist_ok=True)
 
-        # Extraer
+        # Extract contents
         with zipfile.ZipFile(zip_path, "r") as z:
             z.extractall(target_folder)
 
         if verbose:
-            print(f"   ✅ Extraído correctamente")
+            print(f"   Extracted successfully")
 
-        nuevos.append(target_folder)
+        new_folders.append(target_folder)
 
-    print(f"\n Carpetas nuevas creadas: {len(nuevos)}")
-    return nuevos
+    print(f"\n New folders created: {len(new_folders)}")
+    return new_folders

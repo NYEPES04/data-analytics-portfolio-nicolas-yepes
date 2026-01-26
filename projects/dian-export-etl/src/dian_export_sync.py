@@ -1,17 +1,16 @@
 from __future__ import annotations
-
 from pathlib import Path
 from datetime import datetime
 from typing import List
 import requests
 
-# Meses tal como aparecen en los nombres de archivo
+# Months as they appear in the file names
 MESES = [
     "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
     "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
 ]
 
-# Enlace que permite la descarga manual de cada reporte de exportaciones
+# Base URL used for manual download of export reports
 BASE_URL = "https://www.dian.gov.co/dian/cifras/Basesestadisticasexportaciones/"
 
 
@@ -24,52 +23,51 @@ def sync_dian_exportaciones(
     verbose: bool = True,
 ) -> List[Path]:
     """
-    Sincroniza ZIP de EXPORTACIONES de la DIAN.
+    Synchronizes DIAN export ZIP files.
 
-    - Genera nombres NN_Exportaciones_AAAA_Mes.zip usando el patrón conocido.
-    - Por defecto va desde `desde_anio/desde_mes` hasta el año/mes actual.
-    - Solo descarga los que NO existan aún en `dest_dir`.
-    - Devuelve una lista con los archivos NUEVOS descargados.
+    - Generates file names following the pattern NN_Exportaciones_YYYY_Month.zip.
+    - By default, downloads files from `desde_anio/desde_mes` up to the current year/month.
+    - Downloads only files that do NOT already exist in `dest_dir`.
+    - Returns a list of newly downloaded files.
     """
 
     dest_dir = Path(dest_dir)
     dest_dir.mkdir(parents=True, exist_ok=True)
 
-    hoy = datetime.now()
+    today = datetime.now()
 
     if hasta_anio is None:
-        hasta_anio = hoy.year
+        hasta_anio = today.year
     if hasta_mes is None:
-        hasta_mes = hoy.month  # hasta el mes actual
+        hasta_mes = today.month  # up to the current month
 
-    nuevos: List[Path] = []
+    new_files: List[Path] = []
 
     if verbose:
         print(
-            f" Sincronizando exportaciones {desde_anio}-{desde_mes:02d} "
+            f"Synchronizing exports {desde_anio}-{desde_mes:02d} "
             f"→ {hasta_anio}-{hasta_mes:02d}"
         )
 
     for year in range(desde_anio, hasta_anio + 1):
-        mes_inicio = desde_mes if year == desde_anio else 1
-        mes_fin = hasta_mes if year == hasta_anio else 12
+        start_month = desde_mes if year == desde_anio else 1
+        end_month = hasta_mes if year == hasta_anio else 12
 
-        for m in range(mes_inicio, mes_fin + 1):
+        for m in range(start_month, end_month + 1):
             num = f"{m:02d}"
-            nombre_mes = MESES[m - 1]
+            month_name = MESES[m - 1]
 
-            filename = f"{num}_Exportaciones_{year}_{nombre_mes}.zip"
+            filename = f"{num}_Exportaciones_{year}_{month_name}.zip"
             url = BASE_URL + filename
             local_path = dest_dir / filename
 
             if local_path.exists():
                 if verbose:
-                    print(f" Ya existe, omito: {filename}")
+                    print(f"Already exists: {filename}")
                 continue
 
             if verbose:
-                print(f"\n Descargando {filename}...")
-                
+                print(f"\n Downloading {filename}...")
 
             resp = requests.get(url, stream=True)
 
@@ -79,13 +77,13 @@ def sync_dian_exportaciones(
                         if chunk:
                             f.write(chunk)
                 if verbose:
-                    print(f"    Guardado en: {local_path}")
-                nuevos.append(local_path)
+                    print(f"Saved to: {local_path}")
+                new_files.append(local_path)
             else:
                 if verbose:
-                    print(f"    HTTP {resp.status_code} (probablemente aún no existe en DIAN)")
+                    print(f"HTTP {resp.status_code} (Not yet available on DIAN)")
 
     if verbose:
-        print(f"\n Nuevos archivos descargados: {len(nuevos)}")
+        print(f"\n New files downloaded: {len(new_files)}")
 
-    return nuevos
+    return new_files
