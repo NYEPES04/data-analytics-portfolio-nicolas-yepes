@@ -1,17 +1,21 @@
-# =========================
+# ==================================================
 # DATA LAKE (NO VERSIONAR)
-# =========================
+# ==================================================
 data/
 logs/
 
-# re-habilitar estructura mínima
+# --------------------------------------------------
+# Re-habilitar estructura mínima y catálogos ligeros
+# --------------------------------------------------
 !data/
 !data/catalogs/
+
+# Catálogos versionados
 !data/catalogs/*.csv
+!data/catalogs/hs2_capitulos.txt
 
-
-# (opcional) si luego quieres versionar más catálogos CSV
-# !data/catalogs/*.csv
+# (opcional) si luego quieres versionar más .txt específicos
+# !data/catalogs/otro_catalogo.txt
 
 # ==================================================
 # LOGS
@@ -19,11 +23,13 @@ logs/
 logs/
 !logs/.gitkeep
 
+
 # ==================================================
 # JUPYTER
 # ==================================================
 .ipynb_checkpoints/
 **/.ipynb_checkpoints/
+
 
 # ==================================================
 # PYTHON
@@ -37,6 +43,7 @@ __pycache__/
 dist/
 build/
 
+
 # ==================================================
 # ENTORNOS VIRTUALES
 # ==================================================
@@ -44,11 +51,13 @@ build/
 venv/
 env/
 
+
 # ==================================================
 # SISTEMA OPERATIVO
 # ==================================================
 .DS_Store
 Thumbs.db
+
 
 # ==================================================
 # EDITORES / IDEs
@@ -56,10 +65,10 @@ Thumbs.db
 .vscode/
 .idea/
 
+
 # ==================================================
 # ARCHIVOS TEMPORALES
 # ==================================================
 *.log
 *.tmp
 *.bak
-
