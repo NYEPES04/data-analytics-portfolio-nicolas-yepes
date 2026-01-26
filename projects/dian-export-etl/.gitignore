@@ -2,20 +2,15 @@
 # DATA LAKE (NO VERSIONAR)
 # ==================================================
 data/
-logs/
 
-# --------------------------------------------------
-# Re-habilitar estructura mínima y catálogos ligeros
-# --------------------------------------------------
-!data/
+# Permitir solo catálogos ligeros versionados
 !data/catalogs/
-
-# Catálogos versionados
 !data/catalogs/*.csv
-!data/catalogs/hs2_capitulos.txt
+!data/catalogs/*.txt
 
 # (opcional) si luego quieres versionar más .txt específicos
 # !data/catalogs/otro_catalogo.txt
+
 
 # ==================================================
 # LOGS
