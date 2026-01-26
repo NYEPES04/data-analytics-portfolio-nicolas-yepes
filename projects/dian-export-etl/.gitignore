@@ -1,15 +1,13 @@
 # ==================================================
 # DATA LAKE (NO VERSIONAR)
 # ==================================================
-data/
+data/*
 
-# Permitir solo catálogos ligeros versionados
+# Re-habilitar estructura mínima
+!data/
 !data/catalogs/
 !data/catalogs/*.csv
 !data/catalogs/*.txt
-
-# (opcional) si luego quieres versionar más .txt específicos
-# !data/catalogs/otro_catalogo.txt
 
 
 # ==================================================
