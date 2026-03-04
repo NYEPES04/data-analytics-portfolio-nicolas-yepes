@@ -12,7 +12,7 @@ It demonstrates end-to-end analytics: API ingestion → data modeling → dashbo
 
 ### 1) Expansion USD concentration (Treemap)
 Shows how total USD value concentrates across expansions/sets and highlights top value drivers.
-![Expansion USD concentration](./screenshots/01_expansion_usd_treemap.png)
+![Expansion USD concentration](./mtg-scryfall-dashboard/01_expansion_usd_treemap.png)
 
 ### 2) Deck value concentration (Treemap + bar)
 Compares deck value distribution and how value concentrates by deck and rarity.
