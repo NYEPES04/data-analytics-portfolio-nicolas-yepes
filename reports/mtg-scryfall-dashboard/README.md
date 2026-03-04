@@ -12,15 +12,15 @@ It demonstrates end-to-end analytics: API ingestion → data modeling → dashbo
 
 ### 1) Expansion USD concentration (Treemap)
 Shows how total USD value concentrates across expansions/sets and highlights top value drivers.
-![Expansion USD concentration](./mtg-scryfall-dashboard/01_expansion_usd_treemap.png)
+![Expansion USD concentration](./01_expansion_usd_treemap.png)
 
-### 2) Deck value concentration (Treemap + bar)
+### 2) Deck value concentration (Treemap + Bar)
 Compares deck value distribution and how value concentrates by deck and rarity.
-![Deck value concentration](./screenshots/02_deck_value_treemap.png)
+![Deck value concentration](./02_expansion_usd_treemap.png)
 
 ### 3) Deck composition (Categories + CMC distribution)
 Breaks down deck composition by functional category (ramp, removal, draw, etc.) and CMC distribution by color.
-![Deck composition](./screenshots/03_deck_categories_cmc.png)
+![Deck composition](./03_expansion_usd_treemap.png)
 
 ## Data source
 - Scryfall API (cards endpoint): used to retrieve card identifiers, set metadata, pricing fields (usd / usd_foil), and image URLs.
