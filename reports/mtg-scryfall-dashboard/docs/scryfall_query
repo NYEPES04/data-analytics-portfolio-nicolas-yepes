@@ -1,0 +1,193 @@
+## Power Query (M) ingestion – Scryfall API
+
+This dashboard uses a Power Query (M) script to ingest card-level data from the Scryfall API.
+
+**What the script does**
+- Calls the `/cards/search` endpoint with `unique=prints` to retrieve individual prints.
+- Implements pagination using the `next_page` field until no more pages are available.
+- Extracts join keys (`scryfall_id`, `oracle_id`) to connect with Archidekt deck exports.
+- Expands pricing fields (`usd`, `usd_foil`) and standardizes types.
+- Builds a robust `image_normal` URL:
+  - Uses `image_uris.normal` when available
+  - Falls back to `card_faces[0].image_uris.normal` for double-faced cards
+- Removes heavy nested fields (`image_uris`, `card_faces`) to keep the dataset lightweight.
+- Deduplicates records by `scryfall_id`.
+// ==========================================================
+// Scryfall API Ingestion (Power Query M)
+// Project: MTG Market Intelligence Dashboard
+//
+// Goal
+// - Retrieve all MTG card prints from Scryfall using pagination (next_page)
+// - Keep join keys to connect with Archidekt exports (scryfall_id, oracle_id)
+// - Extract pricing (usd, usd_foil) and a robust image URL field (image_normal)
+// - Reduce model size by removing heavy nested columns (image_uris, card_faces)
+//
+// Notes
+// - Filters out digital-only cards (digital = false)
+// - Handles double-faced cards by using card_faces[0].image_uris.normal when needed
+// - Deduplicates by scryfall_id
+// ==========================================================
+
+let
+    // -----------------------------
+    // 1) Helper: fetch one page
+    // -----------------------------
+    getCards = (url as text) =>
+    let
+        response = Web.Contents(
+            url,
+            [
+                Headers = [
+                    #"User-Agent" = "PlanoCentralMagicApp/1.0",
+                    #"Accept" = "*/*"
+                ]
+            ]
+        ),
+        json = Json.Document(response),
+        data = json[data],                              // list of cards for this page
+        next_page = try json[next_page] otherwise null   // URL for next page (if any)
+    in
+        [cards = data, next = next_page],
+
+    // -----------------------------
+    // 2) Helper: paginate until next_page is null
+    // -----------------------------
+    getAllCards = (initialUrl as text) =>
+    let
+        firstPage = getCards(initialUrl),
+
+        remainingPages =
+            List.Generate(
+                () => [page = firstPage, nextUrl = firstPage[next]],   // init
+                each [nextUrl] <> null,                                 // condition
+                each                                                     // iterate
+                    let nextPageData = getCards([nextUrl])
+                    in  [page = nextPageData, nextUrl = nextPageData[next]],
+                each [page][cards]                                       // output
+            ),
+
+        allCards = List.Combine({firstPage[cards]} & remainingPages)
+    in
+        allCards,
+
+    // -----------------------------
+    // 3) Source: Scryfall search endpoint
+    //    unique=prints returns each print (not only unique card names)
+    // -----------------------------
+    url = "https://api.scryfall.com/cards/search?q=*&order=name&unique=prints",
+    allCardsData = getAllCards(url),
+
+    // -----------------------------
+    // 4) Convert list -> table and expand fields
+    // -----------------------------
+    cardsTable =
+        Table.FromList(
+            allCardsData,
+            Splitter.SplitByNothing(),
+            null,
+            null,
+            ExtraValues.Error
+        ),
+
+    expanded =
+        Table.ExpandRecordColumn(
+            cardsTable,
+            "Column1",
+            {
+                // Join keys
+                "id",
+                "oracle_id",
+
+                // Useful fields for analytics
+                "name",
+                "mana_cost",
+                "type_line",
+                "rarity",
+                "set",
+                "set_name",
+                "collector_number",
+                "lang",
+                "released_at",
+                "oracle_text",
+                "image_uris",
+                "card_faces",
+                "prices",
+                "digital",
+                "scryfall_uri"
+            },
+            {
+                // Rename id -> scryfall_id for clarity and joins
+                "scryfall_id",
+                "oracle_id",
+
+                "name",
+                "mana_cost",
+                "type_line",
+                "rarity",
+                "set",
+                "set_name",
+                "collector_number",
+                "lang",
+                "released_at",
+                "oracle_text",
+                "image_uris",
+                "card_faces",
+                "prices",
+                "digital",
+                "scryfall_uri"
+            }
+        ),
+
+    // -----------------------------
+    // 5) Keep physical cards only
+    // -----------------------------
+    onlyPhysical = Table.SelectRows(expanded, each [digital] = false),
+
+    // -----------------------------
+    // 6) Expand prices and type them
+    // -----------------------------
+    expandedPrices =
+        Table.ExpandRecordColumn(
+            onlyPhysical,
+            "prices",
+            {"usd", "usd_foil"},
+            {"usd", "usd_foil"}
+        ),
+
+    priceTypes =
+        Table.TransformColumnTypes(
+            expandedPrices,
+            {{"usd", type number}, {"usd_foil", type number}},
+            "en-US"
+        ),
+
+    // -----------------------------
+    // 7) Robust image URL
+    // - Prefer image_uris.normal
+    // - If missing (e.g., double-faced), use card_faces{0}.image_uris.normal
+    // -----------------------------
+    addImage =
+        Table.AddColumn(
+            priceTypes,
+            "image_normal",
+            each
+                let
+                    img1 = try [image_uris][normal] otherwise null,
+                    img2 = try [card_faces]{0}[image_uris][normal] otherwise null
+                in
+                    if img1 <> null then img1 else img2,
+            type text
+        ),
+
+    // -----------------------------
+    // 8) Remove heavy nested columns to reduce model size
+    // -----------------------------
+    removedHeavy = Table.RemoveColumns(addImage, {"image_uris", "card_faces"}),
+
+    // -----------------------------
+    // 9) Final typing + deduplication
+    // -----------------------------
+    typed = Table.TransformColumnTypes(removedHeavy, {{"released_at", type date}}),
+    dedup = Table.Distinct(typed, {"scryfall_id"})
+in
+    dedup
