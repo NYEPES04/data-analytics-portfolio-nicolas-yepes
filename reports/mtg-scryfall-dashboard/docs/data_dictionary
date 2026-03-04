@@ -1,0 +1,18 @@
+# Data Dictionary (MTG Dashboard)
+
+## Cards table (Scryfall)
+- scryfall_id: Unique ID for each print (join key)
+- oracle_id: Oracle ID shared across reprints
+- name: Card name
+- set / set_name: Set identifiers
+- rarity: common/uncommon/rare/mythic
+- released_at: Release date
+- usd / usd_foil: Latest price fields from Scryfall
+- image_normal: URL used to render card image in BI
+
+## Deck table (Archidekt export)
+- deck_name: Deck identifier
+- card_name: Card name (as exported)
+- scryfall_id / oracle_id: Join fields
+- qty: Card quantity
+- category: Functional category (ramp/removal/draw/etc.)
