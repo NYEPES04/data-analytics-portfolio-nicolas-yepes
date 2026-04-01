@@ -1,0 +1,33 @@
+# =========================
+# DATA (NO SUBIR)
+# =========================
+data
+.parquet
+.csv
+
+# EXCEPCIÓN (si luego quieres catálogos livianos)
+!datacatalogs
+
+# =========================
+# NOTEBOOKS CACHE
+# =========================
+.ipynb_checkpoints
+
+# =========================
+# PYTHON
+# =========================
+__pycache__
+.pyc
+
+# =========================
+# ENV
+# =========================
+.env
+venv
+.venv
+
+# =========================
+# OS
+# =========================
+.DS_Store
+Thumbs.db
